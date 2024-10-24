@@ -1,5 +1,6 @@
 import * as utilities from "../utilities.js";
 import * as serverVariables from "../serverVariables.js";
+import Repository from "./repository.js";
 
 let requestCachesExpirationTime = serverVariables.get("main.repository.CacheExpirationTime");
 
@@ -78,6 +79,12 @@ export default class CachedRequestManager {
 
         if(cache == null)
             return false;
+
+        let ETag = Repository.getETag(HttpContext.path.model);
+        if(cache.ETag != ETag){
+            CachedRequestManager.clear(url);
+            return false;
+        }
       
         HttpContext.response.JSON(cache.content, cache.ETag, true);    
         return true;

@@ -9,7 +9,7 @@ global.cachedRequestsCleanerStarted = false;
 export default class CachedRequestManager {
     static startCachedRequestCleaner() {
         setInterval(CachedRequestManager.flushExpired, requestCachesExpirationTime * 1000)
-        console.log(BgWhite + FgBlue, "[Periodic requests caches cleaning process started...]");
+        console.log(BgMagenta + FgBlack, "[Periodic requests caches cleaning process started...]");
     }
 
     static add(url, content, ETag = "") {
@@ -25,7 +25,7 @@ export default class CachedRequestManager {
                 ETag,
                 Expire_Time: utilities.nowInSeconds() + requestCachesExpirationTime
             });
-            console.log(BgWhite + FgBlue, `[Request of ${url} has been cached]`);
+            console.log(BgMagenta + FgBlack, `[Request of ${url} has been cached]`);
         }
     }
 
@@ -35,13 +35,13 @@ export default class CachedRequestManager {
                 for (let cache of requestCaches) {
                     if (cache.url == url) {
                         cache.Expire_Time = utilities.nowInSeconds + requestCachesExpirationTime;
-                        console.log(BgWhite + FgBlue, `[${cache.url} url retrieved from cache]`);
+                        console.log(BgMagenta + FgBlack, `[${cache.url} url retrieved from cache]`);
                         return cache;
                     }
                 }
             }
         } catch (error) {
-            console.log(BgWhite + FgRed, "[request cache error!]", error)
+            console.log(BgMagenta + FgRed, "[request cache error!]", error)
         }
         return null;
     }
@@ -63,13 +63,17 @@ export default class CachedRequestManager {
         let now = utilities.nowInSeconds();
         for (let cache of requestCaches) {
             if (cache.Expire_Time <= now) {
-                console.log(BgWhite + FgBlue, "Cached request from " + cache.url + " expired");
+                console.log(BgMagenta + FgBlack, "Cached request from " + cache.url + " expired");
             }
         }
         requestCaches = requestCaches.filter(cache => cache.Expire_Time > now);
     }
 
     static get(HttpContext) {
+        if(!HttpContext.isCacheable){
+            return false;
+        }
+        
         let url = HttpContext.req.url;
         let cache = CachedRequestManager.find(url);
 

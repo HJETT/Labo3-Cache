@@ -70,9 +70,8 @@ export default class CachedRequestManager {
     }
 
     static get(HttpContext) {
-        if(!HttpContext.isCacheable){
+        if(!HttpContext.isCacheable)
             return false;
-        }
         
         let url = HttpContext.req.url;
         let cache = CachedRequestManager.find(url);

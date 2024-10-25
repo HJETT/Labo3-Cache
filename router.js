@@ -1,3 +1,5 @@
+import RouteRegister from './routeRegister.js';
+
 export const API_EndPoint = function (HttpContext) {
     return new Promise(async resolve => {
         if (!HttpContext.path.isAPI) {
@@ -60,6 +62,41 @@ export const API_EndPoint = function (HttpContext) {
 }
 export const Registered_EndPoint = function (HttpContext) { 
     let route = RouteRegister.find(HttpContext); 
-    
 
+    return new Promise(async resolve => {
+        if (route == null) {
+            resolve(false);
+        } else {
+            let controllerName = route.controllerName;
+            if (controllerName != undefined) {
+                try {
+                    // dynamically import the targeted controller
+                    // if the controllerName does not exist the catch section will be called
+                    const { default: Controller } = (await import('./controllers/' + controllerName + 'Controller.js'));
+
+                    // instanciate the controller       
+                    let controller = new Controller(HttpContext);
+                    switch (route.actionName) {
+                        case 'list':
+                            controller.list();
+                            resolve(true);
+                            break;
+                        default:
+                            HttpContext.response.notImplemented();
+                            resolve(true);
+                            break;
+                    }
+                } catch (error) {
+                    console.log(BgRed + FgWhite, "Registered_EndPoint Error message: \n", `[${error.message}]`);
+                    console.log(FgRed, "Stack: \n", error.stack);
+                    HttpContext.response.notFound();
+                    resolve(true);
+                }
+            } else {
+                // not an Registered endpoint
+                // must be handled by another middleware
+                resolve(false);
+            }
+        }
+    })
 } 

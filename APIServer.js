@@ -31,7 +31,6 @@ export default class APIServer {
         this.middlewaresPipeline.add(CachedRequestManager.get);
         this.middlewaresPipeline.add(router.API_EndPoint);
         this.middlewaresPipeline.add(router.Registered_EndPoint); 
-
     }
     async handleHttpRequest(req, res) {
         this.markRequestProcessStartTime();
